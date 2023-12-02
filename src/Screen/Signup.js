@@ -1,16 +1,37 @@
 import React, { useState } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { myColors } from '../Utils/MyColors'
 import { StatusBar } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { authentication } from '../../firebaseConfig'
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const Signup = () => {
     const [userCrendetials, setUserCrendetials] = useState({
+        username: "",
         email: "",
         password: ""
     })
     const { email, password } = userCrendetials
+    const userCreate = () => {
+        createUserWithEmailAndPassword(authentication, email, password)
+            .then(() => {
+                Alert.alert('User account created & signed in!');
+                nav.navigate('Login');
+            })
+            .catch(error => {
+                if (error.code === 'auth/email-already-in-use') {
+                    Alert.alert('That email address is already in use!');
+                }
+
+                if (error.code === 'auth/invalid-email') {
+                    Alert.alert('That email address is invalid!');
+                }
+
+                console.error(error);
+            });
+    }
     const nav = useNavigation()
     const [isVisbile, setIsVisbile] = useState(true)
     //================ main_return_function ===========//
@@ -53,7 +74,7 @@ const Signup = () => {
                                 setUserCrendetials({ ...userCrendetials, password: val })
                             }}
                             secureTextEntry={isVisbile}
-                            maxLength={9}
+                            maxLength={15}
                             keyboardType="ascii-capable"
                             style={style.passwordText}
                         />
@@ -66,7 +87,10 @@ const Signup = () => {
                     <Text style={style.tncText}>
                         By continuing you agree to our Terms of Service and  Privacy Policy
                     </Text>
-                    <TouchableOpacity style={style.Touchable}>
+                    <TouchableOpacity
+                        onPress={userCreate}
+                        style={style.Touchable}
+                    >
                         <Text style={style.SignUpText}>SignUp</Text>
                     </TouchableOpacity>
                     <View style={style.alreadyAccountText}>
