@@ -4,8 +4,10 @@ import { myColors } from '../Utils/MyColors'
 import { StatusBar } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { authentication } from '../../firebaseConfig'
+import { authentication, database } from '../../firebaseConfig'
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import uuid from 'react-native-uuid';
 
 const Signup = () => {
     const [userCrendetials, setUserCrendetials] = useState({
@@ -13,12 +15,18 @@ const Signup = () => {
         email: "",
         password: ""
     })
-    const { email, password } = userCrendetials
+    const { email, password, username } = userCrendetials
+
+    const uid = uuid.v4()
     const userCreate = () => {
         createUserWithEmailAndPassword(authentication, email, password)
             .then(() => {
-                Alert.alert('User account created & signed in!');
-                nav.navigate('Login');
+                nav.navigate('Login')
+                setDoc(doc(database, 'users', uid), {
+                    username: username,
+                    email: email,
+                    id: authentication.currentUser.uid
+                });
             })
             .catch(error => {
                 if (error.code === 'auth/email-already-in-use') {
@@ -47,6 +55,10 @@ const Signup = () => {
                     {/*======= Username ==========*/}
                     <Text style={style.userText}>Username</Text>
                     <TextInput
+                        value={username}
+                        onChangeText={(val) => {
+                            setUserCrendetials({ ...userCrendetials, username: val })
+                        }}
                         maxLength={9}
                         keyboardType="name-phone-pad"
                         style={style.inputText} />
