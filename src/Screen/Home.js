@@ -1,12 +1,17 @@
 import React from 'react'
-import { SafeAreaView, Text } from 'react-native'
+import { SafeAreaView } from 'react-native'
+import HomeIcon from '../Components/HomeIcon'
+import { StatusBar } from 'expo-status-bar'
+import HomeSearch from '../Components/HomeSearch'
 
 const Home = () => {
 
-    //=============== main_return_function ===========//
+  //=============== main_return_function ===========//
   return (
-    <SafeAreaView>
-        <Text>Home Screen</Text>
+    <SafeAreaView style={{ paddingHorizontal: 20, paddingTop: 50 }}>
+      <StatusBar style='white' />
+      <HomeIcon />
+      <HomeSearch />
     </SafeAreaView>
   )
 }
