@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { myColors } from '../Utils/MyColors'
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { authentication } from '../../firebaseConfig';
 
 const Login = () => {
     const nav = useNavigation()
@@ -13,6 +15,17 @@ const Login = () => {
         password: ""
     })
     const { email, password } = loginCredentials
+
+    // =========== login_user_Function
+    const loginUser = () => {
+        signInWithEmailAndPassword(authentication, email, password)
+            .then((val) => {
+                nav.replace('Home');
+            })
+            .catch((err) => {
+                Alert.alert(err.message);
+            })
+    }
     //================ main_return_function ===========//
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: myColors.secoundary, }}>
@@ -64,6 +77,7 @@ const Login = () => {
                             <Text style={style.forgetText}>Forget password?</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
+                            onPress={loginUser}
                             style={style.Touchable}
                         >
                             <Text style={style.SignUpText}>Login</Text>
