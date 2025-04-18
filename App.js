@@ -9,9 +9,9 @@ import Details from './src/Screen/Details';
 export default function App() {
   const Stack = createNativeStackNavigator();
   return (
-    <NavigationContainer  >
+    <NavigationContainer>
       <Stack.Navigator
-        initialRouteName='Home'
+        initialRouteName='Splash'
         screenOptions={{
           headerShown: false,
         }}>
