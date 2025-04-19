@@ -6,26 +6,51 @@ import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { authentication } from '../../firebaseConfig';
+import { base_url } from '../Utils/enverioment';
 
 const Login = () => {
     const nav = useNavigation()
-    const [isVisbile, setIsVisbile] = useState(true)
-    const [loginCredentials, setLoginCredentials] = useState({
-        email: "",
-        password: ""
-    })
-    const { email, password } = loginCredentials
+    const [isVisible, setIsVisible] = useState(true);
+    const [userName, setUserName] = useState('');
+    const [password, setPassword] = useState('');
 
-    // =========== login_user_Function
-    const loginUser = () => {
-        signInWithEmailAndPassword(authentication, email, password)
-            .then((val) => {
-                nav.replace('Home');
-            })
-            .catch((err) => {
-                Alert.alert(err.message);
-            })
-    }
+
+    //=========== handle login
+    const handleLogin = async () => {
+        if (!userName || !password) {
+            Alert.alert('Validation Error', 'Username and password are required.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://192.168.0.12:8085/api/loginUser/userId`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: userName,
+                    password,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                Alert.alert('Success', data.message || 'Login successful.');
+                console.log('Login Response:', data);
+      
+                nav.navigate('otp');
+            } else {
+                Alert.alert('Login Failed', data.message || 'Invalid credentials.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            Alert.alert('Error', 'Something went wrong. Please try again later.');
+        }
+    };
+
+
     //================ main_return_function ===========//
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: myColors.secoundary, }}>
@@ -39,13 +64,12 @@ const Login = () => {
 
                     {/*======= email ============*/}
                     <View>
-                        <Text style={style.userText}>Email</Text>
+                        <Text style={style.userText}>Username</Text>
                         <TextInput
-                            value={email}
-                            onChangeText={(val) => {
-                                setLoginCredentials({ ...loginCredentials, email: val });
-                            }}
+                            value={userName}
+                            onChangeText={setUserName}
                             keyboardType="email-address"
+                            autoCapitalize="none"
                             style={style.inputText} />
                     </View>
                     {/*======= password ==========*/}
@@ -60,16 +84,14 @@ const Login = () => {
                         }}>
                             <TextInput
                                 value={password}
-                                onChangeText={(val) => {
-                                    setLoginCredentials({ ...loginCredentials, password: val });
-                                }}
-                                secureTextEntry={isVisbile}
+                                onChangeText={setPassword}
+                                secureTextEntry={isVisible}
                                 keyboardType="ascii-capable"
                                 style={style.passwordText}
                             />
                             <Ionicons
-                                onPress={() => setIsVisbile(!isVisbile)}
-                                name={isVisbile ? "eye-off-outline" : "eye-outline"}
+                                onPress={() => setIsVisible(!isVisible)}
+                                name={isVisible ? "eye-off-outline" : "eye-outline"}
                                 size={24} color="black"
                             />
                         </View>
@@ -77,7 +99,7 @@ const Login = () => {
                             <Text style={style.forgetText}>Forget password?</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            onPress={loginUser}
+                            onPress={handleLogin}
                             style={style.Touchable}
                         >
                             <Text style={style.SignUpText}>Login</Text>
@@ -182,3 +204,7 @@ const style = StyleSheet.style = ({
     }
 })
 export default Login
+
+
+
+
